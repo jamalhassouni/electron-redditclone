@@ -1,0 +1,17 @@
+{
+  "name": "electron_redditclone",
+  "version": "1.0.0",
+  "description": "Simple Desktop reddit App Clone",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "Jamal HAssouni",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "electron": "^4.0.1",
+    "moment": "^2.23.0"
+  }
+}

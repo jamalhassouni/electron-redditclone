@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reddit Clone</title>
+    <!-- prettier-ignore -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"/>
+    <style>
+      body {
+        padding: 24px;
+      }
+      .ui.divided.list > .item {
+        cursor: pointer;
+      }
+      .ui.divided.list > .item:hover {
+        background: #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="posts" class="ui relaxed divided list"></div>
+    <script>
+      const axios = require("axios");
+      const { remote, ipcRenderer } = require("electron");
+      const { BrowserWindow, Menu, getCurrentWindow } = remote;
+      const moment = require("moment");
+      this.initMenu();
+      let posts = [];
+      const wrapper = document.getElementById("posts");
+      axios
+        .get("https://www.reddit.com/r/reactjs.json")
+        .then(response => {
+          posts = response.data.data.children;
+          this.renderPosts(posts);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+      function renderPosts(posts) {
+        posts.forEach(element => {
+          const thumbnail =
+            element.data.thumbnail !== "self"
+              ? element.data.thumbnail
+              : "https://semantic-ui.com/images/wireframe/image.png";
+
+          const preview =
+            element.data.preview !== undefined
+              ? element.data.preview.images[0].source.url
+              : "https://semantic-ui.com/images/wireframe/image.png";
+
+          wrapper.innerHTML += `
+              <div class="item" data-image="${preview}">
+        <img
+          class="ui avatar mini image"
+          src="${thumbnail}"
+        />
+
+        <div class="content">
+          <a class="header">${element.data.title}</a>
+          <div class="description">${moment
+            .unix(element.data.created_utc)
+            .fromNow()}</div>
+        </div>
+      </div>
+              `;
+        });
+        this.addEventListeners();
+      }
+
+      function addEventListeners() {
+        document.querySelectorAll(".item").forEach(elm => {
+          elm.addEventListener("click", function() {
+            let imageWindow = new BrowserWindow({ width: 500, height: 500 });
+            imageWindow.on("close", () => {
+              imageWindow = null;
+            });
+
+            imageWindow.loadURL(
+              "file://" +
+                __dirname +
+                "/image.html?image=" +
+                this.getAttribute("data-image")
+            );
+            imageWindow.show();
+          });
+        });
+      }
+      function initMenu() {
+        const menu = Menu.buildFromTemplate([
+          {
+            label: "File",
+            submenu: [
+              { label: "New Window" },
+              {
+                label: "Settings",
+                accelerator: "CmdOrCtrl+,",
+                click: () => {
+                  ipcRenderer.send("toggle-settings");
+                }
+              },
+              { type: "separator" },
+              {
+                label: "Quit",
+                accelerator: "CmdOrCtrl+Q",
+                click: () => getCurrentWindow().close()
+              }
+            ]
+          },
+          {
+            label: "Edit",
+            submenu: [
+              { label: "Menu Item 1" },
+              { label: "Menu Item 2" },
+              { type: "separator" },
+              { label: "Menu Item 3" }
+            ]
+          },
+          {
+            label: "View",
+            submenu: [
+              {
+                label: "Reload",
+                accelerator: "CmdOrCtrl+R",
+                click: () => getCurrentWindow().reload()
+              },
+              {
+                label: "Developer Tools",
+                accelerator: "CmdOrCtrl+Shift+i",
+                click: () => getCurrentWindow().webContents.openDevTools()
+              },
+              { type: "separator" },
+              { label: "Menu Item 3" }
+            ]
+          }
+        ]);
+
+        Menu.setApplicationMenu(menu);
+      }
+    </script>
+  </body>
+</html>
