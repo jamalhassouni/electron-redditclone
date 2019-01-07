@@ -1,10 +1,15 @@
 {
-  "name": "electron_redditclone",
+  "name": "reddit",
   "version": "1.0.0",
   "description": "Simple Desktop reddit App Clone",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "package-mac": "electron-packager . reddit --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . reddit  --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Reddit Clone\"",
+    "package-linux": "electron-packager . reddit --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/icon.png --prune=true --out=release-builds",
+    "create-installer-win": "node installers/windows/createinstaller.js",
+    "create-debian-installer": "electron-installer-debian --src release-builds/reddit-linux-x64/ --arch amd64 --config debian.json"
   },
   "keywords": [],
   "author": "Jamal HAssouni",
@@ -13,5 +18,8 @@
     "axios": "^0.18.0",
     "electron": "^4.0.1",
     "moment": "^2.23.0"
+  },
+  "devDependencies": {
+    "electron-packager": "^13.0.1"
   }
 }
